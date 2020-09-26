@@ -10,7 +10,35 @@ var firebaseConfig = {
     storageBucket: "ecommerce-db-d26bc.appspot.com",
     messagingSenderId: "195064753405",
     appId: "1:195064753405:web:226c06ca0607cbc6526294"
-  };
+};
+  
+export const createUserProfileDocument = async (userAuth, additionalData) => { 
+  if (!userAuth) return;
+
+  const userRef = firestore.doc(`/users/${userAuth.uid}`);
+
+  const snapShot = await userRef.get();
+
+  console.log(snapShot);
+
+  if (!snapShot.exists) { 
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...additionalData
+      });
+    } catch (error) {
+      console.log('error creating user', error.message);
+    }
+  }
+
+  return userRef;
+}
 
 firebase.initializeApp(firebaseConfig);
 
